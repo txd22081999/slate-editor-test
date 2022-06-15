@@ -1,3 +1,6 @@
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
+
 const Leaf = (props: any) => {
   let { attributes, children, leaf } = props
 
@@ -24,9 +27,11 @@ const Leaf = (props: any) => {
   }
 
   return (
+    // <DndProvider backend={HTML5Backend}>
     <div draggable onDragStart={(e) => console.log(e)}>
       <span {...attributes}>{children}</span>
     </div>
+    // </DndProvider>
   )
 }
 

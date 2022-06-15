@@ -11,11 +11,19 @@ import {
   Text,
 } from 'slate'
 import { withHistory } from 'slate-history'
-import { Button, Toolbar, Icon, MarkButton, BlockButton } from '../atoms'
+import {
+  Button,
+  Toolbar,
+  Icon,
+  MarkButton,
+  BlockButton,
+  toggleMark,
+} from '../atoms'
 import { css } from '@emotion/css'
 import { DndProvider } from 'react-dnd'
 import Element from '../atoms/Element'
 import Leaf from '../atoms/Leaf'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 
 const HOTKEYS = {
   'mod+b': 'bold',
@@ -134,14 +142,15 @@ const MyEditor = () => {
   }
 
   return (
-    <Slate
-      editor={editor}
-      value={initialValue}
-      // onChange={(e) => console.log(e)}
-      onChange={onChange}
-    >
-      <Toolbar>
-        {/* <div
+    <DndProvider backend={HTML5Backend}>
+      <Slate
+        editor={editor}
+        value={initialValue}
+        // onChange={(e) => console.log(e)}
+        onChange={onChange}
+      >
+        <Toolbar>
+          {/* <div
           className={css`
             position: relative;
           `}
@@ -166,31 +175,32 @@ const MyEditor = () => {
             `}
           />
         </div> */}
-        <MarkButton format='bold' icon='format_bold' />
-        <MarkButton format='italic' icon='format_italic' />
-        <MarkButton format='underline' icon='format_underlined' />
-        <MarkButton format='code' icon='code' />
-        <BlockButton format='heading-one' icon='looks_one' />
-        <BlockButton format='heading-two' icon='looks_two' />
-        <BlockButton format='block-quote' icon='format_quote' />
-        <BlockButton format='numbered-list' icon='format_list_numbered' />
-        <BlockButton format='bulleted-list' icon='format_list_bulleted' />
-        <BlockButton format='left' icon='format_align_left' />
-        <BlockButton format='center' icon='format_align_center' />
-        <BlockButton format='right' icon='format_align_right' />
-        <BlockButton format='justify' icon='format_align_justify' />
-      </Toolbar>
-      <Editable
-        renderElement={renderElement}
-        renderLeaf={renderLeaf}
-        placeholder='Enter some rich text…'
-        spellCheck
-        autoFocus
-        decorate={decorate}
-        onKeyDown={onKeyDown}
-        // onDragStart={(e) => console.log(e)}
-      />
-    </Slate>
+          <MarkButton format='bold' icon='format_bold' />
+          <MarkButton format='italic' icon='format_italic' />
+          <MarkButton format='underline' icon='format_underlined' />
+          <MarkButton format='code' icon='code' />
+          <BlockButton format='heading-one' icon='looks_one' />
+          <BlockButton format='heading-two' icon='looks_two' />
+          <BlockButton format='block-quote' icon='format_quote' />
+          <BlockButton format='numbered-list' icon='format_list_numbered' />
+          <BlockButton format='bulleted-list' icon='format_list_bulleted' />
+          <BlockButton format='left' icon='format_align_left' />
+          <BlockButton format='center' icon='format_align_center' />
+          <BlockButton format='right' icon='format_align_right' />
+          <BlockButton format='justify' icon='format_align_justify' />
+        </Toolbar>
+        <Editable
+          renderElement={renderElement}
+          renderLeaf={renderLeaf}
+          placeholder='Enter some rich text…'
+          spellCheck
+          autoFocus
+          decorate={decorate}
+          onKeyDown={onKeyDown}
+          // onDragStart={(e) => console.log(e)}
+        />
+      </Slate>
+    </DndProvider>
   )
 }
 

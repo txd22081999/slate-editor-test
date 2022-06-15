@@ -26,13 +26,7 @@ const Leaf = (props: any) => {
     )
   }
 
-  return (
-    // <DndProvider backend={HTML5Backend}>
-    <div draggable onDragStart={(e) => console.log(e)}>
-      <span {...attributes}>{children}</span>
-    </div>
-    // </DndProvider>
-  )
+  return <span {...attributes}>{children}</span>
 }
 
 export default Leaf

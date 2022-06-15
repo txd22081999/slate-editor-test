@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { ReactNode, useCallback, useMemo, useState } from 'react'
 import isHotkey from 'is-hotkey'
 import { Editable, withReact, useSlate, Slate, ReactEditor } from 'slate-react'
 import {
@@ -24,6 +24,7 @@ import { DndProvider } from 'react-dnd'
 import Element from '../atoms/Element'
 import Leaf from '../atoms/Leaf'
 import { HTML5Backend } from 'react-dnd-html5-backend'
+import DraggableElement from '../atoms/DraggableElement'
 
 const HOTKEYS = {
   'mod+b': 'bold',
@@ -69,8 +70,13 @@ const defaultValue: Descendant[] | any = [
   //   },
 ]
 
-const MyEditor = () => {
-  const renderElement = useCallback((props: any) => <Element {...props} />, [])
+const MyEditor = (): JSX.Element => {
+  // const renderElement = useCallback((props: any) => <Element {...props} />, [])
+  const renderElement = useCallback(
+    (props: any) => <DraggableElement {...props} />,
+    []
+  )
+
   const renderLeaf = useCallback((props: any) => <Leaf {...props} />, [])
   const editor: ReactEditor = useMemo(
     () => withHistory(withReact(createEditor() as any)),
@@ -141,13 +147,24 @@ const MyEditor = () => {
     }
   }
 
+  const moveBlock = () => {
+    // Transforms.moveNodes(editor, {
+    //   at: [0],
+    //   to: [1],
+    // })
+    // console.log('MOVED')
+    // console.log(editor)
+    // Transforms.removeNodes(editor, {
+    //   at: [0],
+    // })
+  }
+
   return (
     <DndProvider backend={HTML5Backend}>
       <Slate
         editor={editor}
         value={initialValue}
-        // onChange={(e) => console.log(e)}
-        onChange={onChange}
+        // onChange={onChange}
       >
         <Toolbar>
           {/* <div
@@ -188,6 +205,7 @@ const MyEditor = () => {
           <BlockButton format='center' icon='format_align_center' />
           <BlockButton format='right' icon='format_align_right' />
           <BlockButton format='justify' icon='format_align_justify' />
+          <button onClick={moveBlock}>Move</button>
         </Toolbar>
         <Editable
           renderElement={renderElement}
@@ -204,4 +222,13 @@ const MyEditor = () => {
   )
 }
 
+// const withDragAndDrop = (component: () => JSX.Element) => {
+//   return (
+//     <DndProvider backend={HTML5Backend}>
+//       <component />
+//     </DndProvider>
+//   )
+// }
+
 export default MyEditor
+// export default withDragAndDrop(MyEditor)

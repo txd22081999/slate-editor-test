@@ -63,6 +63,38 @@ const defaultValue: Descendant[] | any = [
     type: 'block-quote',
     children: [{ text: 'A wise quote.' }],
   },
+  {
+    type: 'paragraph',
+    children: [
+      {
+        text: 'Paragraph 4',
+      },
+    ],
+  },
+  {
+    type: 'paragraph',
+    children: [
+      {
+        text: 'Paragraph 5',
+      },
+    ],
+  },
+  {
+    type: 'paragraph',
+    children: [
+      {
+        text: 'Paragraph 6',
+      },
+    ],
+  },
+  {
+    type: 'paragraph',
+    children: [
+      {
+        text: 'Paragraph 7',
+      },
+    ],
+  },
   //   {
   //     type: 'paragraph',
   //     align: 'center',
@@ -205,7 +237,7 @@ const MyEditor = (): JSX.Element => {
           <BlockButton format='center' icon='format_align_center' />
           <BlockButton format='right' icon='format_align_right' />
           <BlockButton format='justify' icon='format_align_justify' />
-          <button onClick={moveBlock}>Move</button>
+          {/* <button onClick={moveBlock}>Move</button> */}
         </Toolbar>
         <Editable
           renderElement={renderElement}

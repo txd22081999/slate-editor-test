@@ -1,5 +1,9 @@
-[draggable="true"] {
-    // &:hover {
-    //     border: 1px dashed black;
-    // }
+[draggable="true"] > * {
+    &:hover {
+        border: 1px dashed black;
+    }
+}
+
+[draggable="false"] {
+    opacity: 0.2;
 }

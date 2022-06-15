@@ -27,6 +27,9 @@ const Card = ({ id, text, index, moveCard }: any) => {
       }
       const dragIndex = item.index
       const hoverIndex = index
+      // console.log(ref.current)
+      console.log({ dragIndex, hoverIndex })
+
       // Don't replace items with themselves
       if (dragIndex === hoverIndex || !ref.current) {
         return

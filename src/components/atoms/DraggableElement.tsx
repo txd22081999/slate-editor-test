@@ -2,6 +2,8 @@ import update from 'immutability-helper'
 import { useCallback, useRef, useState } from 'react'
 import { DndProvider, useDrag, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
+import { Transforms } from 'slate'
+import { ReactEditor, useEditor } from 'slate-react'
 import './style.scss'
 
 const style = {
@@ -13,8 +15,10 @@ const ItemTypes = {
 }
 
 const DraggableElement = (props: any): JSX.Element => {
+  const editor = useEditor()
   let { attributes, children, element, id, text, index } = props
-  // let { id, text, index, moveCard } = props
+  // console.log(props)
+  // console.log(editor)
 
   const ref = useRef(null)
   const [cards, setCards] = useState([
@@ -48,15 +52,28 @@ const DraggableElement = (props: any): JSX.Element => {
     },
   ])
 
-  const moveCard = useCallback((dragIndex: any, hoverIndex: any) => {
-    setCards((prevCards) =>
-      update(prevCards, {
-        $splice: [
-          [dragIndex, 1],
-          [hoverIndex, 0, prevCards[dragIndex]],
-        ],
-      })
-    )
+  const moveBlock = useCallback((dragIndex: any, hoverIndex: any) => {
+    console.log('moveBlock')
+    // console.log(dragIndex, hoverIndex)
+    // console.log(dragIndex)
+
+    if (dragIndex === undefined || hoverIndex === undefined) return
+
+    Transforms.moveNodes(editor, {
+      at: [dragIndex],
+      to: [hoverIndex],
+    })
+
+    // setCards((prevCards) => {
+    //   const a = update(prevCards, {
+    //     $splice: [
+    //       [dragIndex, 1],
+    //       [hoverIndex, 0, prevCards[dragIndex]],
+    //     ],
+    //   })
+    //   console.log(a)
+    //   return a
+    // })
   }, [])
 
   const [{ handlerId }, drop] = useDrop({
@@ -70,9 +87,14 @@ const DraggableElement = (props: any): JSX.Element => {
       if (!ref.current) {
         return
       }
+
       const dragIndex = item.index
-      const hoverIndex = index
+      // const hoverIndex = index
       // Don't replace items with themselves
+
+      const path = ReactEditor.findPath(editor, element)
+      const [hoverIndex] = path
+
       if (dragIndex === hoverIndex || !ref.current) {
         return
       }
@@ -97,7 +119,7 @@ const DraggableElement = (props: any): JSX.Element => {
         return
       }
       // Time to actually perform the action
-      moveCard(dragIndex, hoverIndex)
+      moveBlock(dragIndex, hoverIndex)
       // Note: we're mutating the monitor item here!
       // Generally it's better to avoid mutations,
       // but it's good here for the sake of performance
@@ -117,20 +139,11 @@ const DraggableElement = (props: any): JSX.Element => {
   const opacity = isDragging ? 0 : 1
   drag(drop(ref))
 
-  // return (
-  //   <div
-  //     ref={ref}
-  //     style={{ ...style, opacity }}
-  //     data-handler-id={handlerId}
-  //     onDragStart={(e) => console.log(e)}
-  //   >
-  //     <span {...attributes}>{children}</span>
-  //   </div>
-  // )
-
   const style = { textAlign: element.align }
 
   const getElement = () => {
+    // console.log('render')
+
     switch (element.type) {
       case 'block-quote':
         return (

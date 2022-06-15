@@ -95,7 +95,12 @@ const Element = ({ attributes, children, element }: any) => {
   switch (element.type) {
     case 'block-quote':
       return (
-        <blockquote style={style} {...attributes}>
+        <blockquote
+          style={style}
+          {...attributes}
+          // draggable
+          // onDragStart={(e) => console.log(e)}
+        >
           {children}
         </blockquote>
       )
@@ -200,7 +205,7 @@ const MarkButton = ({ format, icon }: any) => {
   )
 }
 
-const initialValue: Descendant[] | any = [
+const defaultValue: Descendant[] | any = [
   {
     type: 'paragraph',
     children: [
@@ -244,6 +249,14 @@ const MyEditor = () => {
     () => withHistory(withReact(createEditor() as any)),
     []
   )
+  const initialValue = useMemo(() => {
+    const content = localStorage.getItem('content')
+    if (content) {
+      return JSON.parse(content)
+    } else {
+      return defaultValue
+    }
+  }, [])
   const [search, setSearch] = useState<string | undefined>()
   const decorate = useCallback(
     ([node, path]: any) => {
@@ -272,11 +285,41 @@ const MyEditor = () => {
     [search]
   )
 
+  const onKeyDown = (event: any) => {
+    if (event.key === '&') {
+      // Prevent the ampersand character from being inserted.
+      event.preventDefault()
+      // Execute the `insertText` method when the event occurs.
+      editor.insertText('and')
+    }
+    for (const hotkey in HOTKEYS) {
+      if (isHotkey(hotkey, event as any)) {
+        event.preventDefault()
+        const mark = HOTKEYS[hotkey]
+        toggleMark(editor, mark)
+      }
+    }
+  }
+
+  const onChange = (values: any) => {
+    const isAstChange = editor.operations.some(
+      (op) => 'set_selection' !== op.type
+    )
+    console.log(isAstChange)
+
+    if (isAstChange) {
+      // Save the value to Local Storage.
+      const content = JSON.stringify(values)
+      localStorage.setItem('content', content)
+    }
+  }
+
   return (
     <Slate
       editor={editor}
       value={initialValue}
-      onChange={(e) => console.log(e)}
+      // onChange={(e) => console.log(e)}
+      onChange={onChange}
     >
       <Toolbar>
         {/* <div
@@ -325,15 +368,9 @@ const MyEditor = () => {
         spellCheck
         autoFocus
         decorate={decorate}
-        onKeyDown={(event) => {
-          for (const hotkey in HOTKEYS) {
-            if (isHotkey(hotkey, event as any)) {
-              event.preventDefault()
-              const mark = HOTKEYS[hotkey]
-              toggleMark(editor, mark)
-            }
-          }
-        }}
+        draggable
+        onKeyDown={onKeyDown}
+        // onDragStart={(e) => console.log(e)}
       />
     </Slate>
   )

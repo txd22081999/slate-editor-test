@@ -1,6 +1,26 @@
-import React, { Ref, PropsWithChildren } from 'react'
 import ReactDOM from 'react-dom'
 import { cx, css } from '@emotion/css'
+
+import React, {
+  PropsWithChildren,
+  Ref,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react'
+import isHotkey from 'is-hotkey'
+import { Editable, withReact, useSlate, Slate, ReactEditor } from 'slate-react'
+import {
+  Editor,
+  Transforms,
+  createEditor,
+  Descendant,
+  Element as SlateElement,
+  BaseEditor,
+  Text,
+} from 'slate'
+import { withHistory } from 'slate-history'
+import { DndProvider } from 'react-dnd'
 
 interface BaseProps {
   className: string
@@ -57,7 +77,7 @@ export const EditorValue = React.forwardRef(
     ref: Ref<OrNull<null>>
   ) => {
     const textLines = value.document.nodes
-      .map((node) => node.text)
+      .map((node: any) => node.text)
       .toArray()
       .join('\n')
     return (
@@ -166,7 +186,7 @@ export const Menu = React.forwardRef(
   )
 )
 
-export const Portal = ({ children }) => {
+export const Portal = ({ children }: any) => {
   return typeof document === 'object'
     ? ReactDOM.createPortal(children, document.body)
     : null
@@ -193,3 +213,106 @@ export const Toolbar = React.forwardRef(
     />
   )
 )
+
+const LIST_TYPES = ['numbered-list', 'bulleted-list']
+const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify']
+
+const toggleBlock = (editor: any, format: any) => {
+  const isActive = isBlockActive(
+    editor,
+    format,
+    TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type'
+  )
+  const isList = LIST_TYPES.includes(format)
+
+  Transforms.unwrapNodes(editor, {
+    match: (n) =>
+      !Editor.isEditor(n) &&
+      SlateElement.isElement(n) &&
+      LIST_TYPES.includes(n.type) &&
+      !TEXT_ALIGN_TYPES.includes(format),
+    split: true,
+  })
+  let newProperties: Partial<SlateElement>
+  if (TEXT_ALIGN_TYPES.includes(format)) {
+    newProperties = {
+      align: isActive ? undefined : format,
+    }
+  } else {
+    newProperties = {
+      type: isActive ? 'paragraph' : isList ? 'list-item' : format,
+    }
+  }
+  Transforms.setNodes<SlateElement>(editor, newProperties)
+
+  if (!isActive && isList) {
+    const block = { type: format, children: [] }
+    Transforms.wrapNodes(editor, block)
+  }
+}
+
+const toggleMark = (editor: any, format: any) => {
+  const isActive = isMarkActive(editor, format)
+
+  if (isActive) {
+    Editor.removeMark(editor, format)
+  } else {
+    Editor.addMark(editor, format, true)
+  }
+}
+
+const isBlockActive = (editor: any, format: any, blockType = 'type') => {
+  const { selection } = editor
+  if (!selection) return false
+
+  const [match] = Array.from(
+    Editor.nodes(editor, {
+      at: Editor.unhangRange(editor, selection),
+      match: (n) =>
+        !Editor.isEditor(n) &&
+        SlateElement.isElement(n) &&
+        n[blockType] === format,
+    })
+  )
+
+  return !!match
+}
+
+const isMarkActive = (editor: any, format: any) => {
+  const marks = Editor.marks(editor)
+  return marks ? marks[format] === true : false
+}
+
+export const BlockButton = ({ format, icon }: any) => {
+  const editor: BaseEditor = useSlate()
+  return (
+    <Button
+      active={isBlockActive(
+        editor,
+        format,
+        TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type'
+      )}
+      onMouseDown={(event: any) => {
+        event.preventDefault()
+        toggleBlock(editor, format)
+      }}
+    >
+      <Icon>{icon}</Icon>
+    </Button>
+  )
+}
+
+export const MarkButton = ({ format, icon }: any) => {
+  const editor = useSlate()
+  return (
+    <Button
+      active={isMarkActive(editor, format)}
+      onMouseDown={(event: any) => {
+        event.preventDefault()
+        toggleMark(editor, format)
+      }}
+    >
+      <Icon>{icon}</Icon>
+    </Button>
+  )
+}

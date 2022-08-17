@@ -193,11 +193,7 @@ const MyEditor = (): JSX.Element => {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <Slate
-        editor={editor}
-        value={initialValue}
-        // onChange={onChange}
-      >
+      <Slate editor={editor} value={initialValue} onChange={onChange}>
         <Toolbar>
           {/* <div
           className={css`

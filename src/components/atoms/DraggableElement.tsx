@@ -198,6 +198,7 @@ const DraggableElement = (props: any): JSX.Element => {
       style={{ ...style, opacity }}
       data-handler-id={handlerId}
       onDragStart={(e) => console.log(e)}
+      className='draggable-element'
     >
       {getElement()}
     </div>
